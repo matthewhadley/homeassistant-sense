@@ -1,0 +1,10 @@
+---
+configuration:
+  sense_email:
+    name: Sense Email
+    description: >-
+      Your Sense.com email
+  sense_password:
+    name: Sense Password
+    description: >-
+      Your Sense.com password
