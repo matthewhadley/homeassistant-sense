@@ -19,4 +19,4 @@ arch:
   - armhf
   - armv7
   - i386
-image: "matthewhadley/homeassistant-dropbox-addon-{arch}"
+image: "matthewhadley/homeassistant-sense-addon-{arch}"
