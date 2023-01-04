@@ -1,11 +1,5 @@
 #!/bin/bash
 
-sedi () {
-  sed --version >/dev/null 2>&1 && sed -i -- "$@" || sed -i "" "$@"
-}
-
-APP=sense
-
 docker run \
     --rm \
     --privileged \
@@ -14,6 +8,6 @@ docker run \
     -v "$(pwd)":/data \
     homeassistant/aarch64-builder \
     --all \
-    --target $APP
+    --target sense
 
 
