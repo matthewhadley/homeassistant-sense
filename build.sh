@@ -5,11 +5,6 @@ sedi () {
 }
 
 APP=sense
-VERSION=$(cat sense/VERSION)
-CONFIG=$APP/config.yaml
-
-sedi "s/^version: dev/version: $VERSION/" $CONFIG
-sedi "s/^#image/image/" $CONFIG
 
 docker run \
     --rm \
@@ -21,6 +16,4 @@ docker run \
     --all \
     --target $APP
 
-sedi "s/^version: $VERSION/version: dev/" $CONFIG
-sedi "s/^image/#image/" $CONFIG
 
