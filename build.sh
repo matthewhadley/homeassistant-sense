@@ -1,5 +1,16 @@
 #!/bin/bash
 
+sedi () {
+  sed --version >/dev/null 2>&1 && sed -i -- "$@" || sed -i "" "$@"
+}
+
+APP=sense
+VERSION=$(cat sense/VERSION)
+CONFIG=$APP/config.yaml
+
+sedi "s/^version: dev/version: $VERSION/" $CONFIG
+sedi "s/^#image/image/" $CONFIG
+
 docker run \
     --rm \
     --privileged \
@@ -8,4 +19,8 @@ docker run \
     -v "$(pwd)":/data \
     homeassistant/aarch64-builder \
     --all \
-    --target sense
+    --target $APP
+
+sedi "s/^version: $VERSION/version: dev/" $CONFIG
+sedi "s/^image/#image/" $CONFIG
+
