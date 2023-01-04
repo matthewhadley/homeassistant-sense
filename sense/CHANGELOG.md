@@ -1,3 +1,9 @@
+## [0.4.9] - 2023-01-03
+
+### Changed
+
+- cleanup api call, increase interval range
+
 ## [0.3.1] - 2023-01-03
 
 ### Fixed

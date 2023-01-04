@@ -11,4 +11,4 @@ configuration:
   interval:
     name: Interval
     description: >-
-      Read data every n websocket messages
+      Read data every n websocket messages (from 1 to 15)
