@@ -1,5 +1,11 @@
+## [0.2.0] - 2023-01-03
+
+### Added
+
+- Config for altering INTERVAL for reading websocket messages
+
 ## [0.1.0] - 2023-01-02
 
 ### Added
 
-- Beta Release. Populate `sensor.sense_realtime_energy_usage`
+- Beta release for testing only. Populate `sensor.sense_realtime_energy_usage`

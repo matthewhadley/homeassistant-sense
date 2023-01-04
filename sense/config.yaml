@@ -1,7 +1,7 @@
 name: "Sense"
 description: "A Home Assistant Add-on to fetch Sense.com realtime data"
 url: "https://github.com/matthewhadley/homeassistant-sense"
-version: "0.1.0"
+version: "0.2.0"
 slug: "sense"
 init: false
 stdin: true
@@ -10,9 +10,11 @@ homeassistant_api: true
 options:
   sense_email: null
   sense_password: null
+  interval: 3
 schema:
   sense_email: str
   sense_password: str
+  interval: int(1,10)?
 arch:
   - aarch64
   - amd64

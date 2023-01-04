@@ -8,3 +8,7 @@ configuration:
     name: Sense Password
     description: >-
       Your Sense.com password
+  interval:
+    name: Interval
+    description: >-
+      Read data every n websocket messages

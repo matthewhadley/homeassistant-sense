@@ -2,6 +2,7 @@
 
 SENSE_EMAIL="$(bashio::config 'sense_email')"
 SENSE_PASSWORD="$(bashio::config 'sense_password')"
+INTERVAL="$(bashio::config 'interval')"
 
 SENSE_VERSION=$(cat VERSION)
 
@@ -25,7 +26,6 @@ SENSE_MONITOR_0_ID=$(curl -sq "$SENSE_API_URI/authenticate" \
 URI="wss://clientrt.sense.com/monitors/$SENSE_MONITOR_0_ID/realtimefeed?access_token=$SENSE_ACCESS_TOKEN"
 i=1
 RE='^[0-9]+$'
-INTERVAL=3
 
 websocat "$URI" |
 while read -r PAYLOAD; do
@@ -41,6 +41,5 @@ while read -r PAYLOAD; do
         else
             ((i++))
         fi
-
     fi
 done
