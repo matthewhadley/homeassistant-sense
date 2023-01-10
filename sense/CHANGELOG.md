@@ -1,3 +1,9 @@
+## [0.5.0] - 2023-01-09
+
+### Changed
+
+- re-implment websocat calls
+
 ## [0.4.0] - 2023-01-03
 
 ### Changed
