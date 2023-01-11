@@ -61,7 +61,8 @@ realtime() {
     i=0
     count=1
     # max=7
-    websocat -E -t "$URI" 2>/dev/null |
+    # websocat -E -t "$URI" 2>/dev/null |
+    websocat -v -v -E -t "$URI" |
     while read -r PAYLOAD; do
 
         TYPE=$(echo "$PAYLOAD" | jq -r '.type | select( . != null )')
@@ -103,6 +104,8 @@ realtime() {
             fi
         elif [ "$TYPE" == "hello" ]; then
             bashio::log.info "Connection established"
+        else
+            bashio::log.info "$PAYLOAD"
         fi
     done
 }
