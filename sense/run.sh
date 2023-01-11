@@ -70,7 +70,7 @@ realtime() {
             ERROR=$(echo "$PAYLOAD" | jq -r '.payload.error_reason | select( . != null )')
             bashio::log.info "ERROR: $ERROR"
             bashio::log.info "Connection closed"
-            break
+            # break
 
             if [ "$ERROR" == "Unauthorized" ]; then
                 auth reauth
