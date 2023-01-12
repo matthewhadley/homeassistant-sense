@@ -1,2 +1,4 @@
 .vscode
 .devcontainer.json
+sense/node_modules
+package-lock.json

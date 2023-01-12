@@ -1,3 +1,9 @@
+## [0.7.0] - 2023-01-12
+
+### Changed
+
+- Use Node.js for websocket
+
 ## [0.6.1] - 2023-01-11
 
 ### Fixed
