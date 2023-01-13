@@ -14,5 +14,5 @@ export SENSE_PASSWORD
 export SENSE_INTERVAL
 
 bashio::log.info "Starting node service."
-npm run start
+npm run --silent start
 
