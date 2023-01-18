@@ -1,3 +1,15 @@
+## [0.7.8] - 2023-01-18
+
+### Changed
+
+more changes to logging
+
+## [0.7.7] - 2023-01-18
+
+### Changed
+
+changes to console
+
 ## [0.7.6] - 2023-01-18
 
 ### Changed
