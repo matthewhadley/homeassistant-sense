@@ -1,51 +1,9 @@
 import {createWriteStream} from 'fs'
 import Stream from 'stream';
-import consoleStamp from 'console-stamp';
 import dayjs from 'dayjs';
 import WebSocket from 'ws';
 import fetch from 'node-fetch';
 import fs from 'fs/promises'
-
-// consoleStamp(console, {
-//     format: `:date(yyyy-mm-dd HH:MM:ss) :label() :msg()`,
-//     tokens: {
-//         label: (t) => {
-//             return `${t.method.toUpperCase()}`;
-//         }
-//     }
-// } );
-
-// const LOG_FILE = "/config/sense.log"
-// const log = createWriteStream(LOG_FILE, { flags: 'a' });
-// const console = new console.Console(log, log);
-
-// const stdOutTransform = new Stream.Transform({
-//     transform(chunk, encoding, callback) {
-//         process.stdout.write(chunk);
-//         log.write(chunk);
-//         callback(null, chunk.toString());
-//     }
-// });
-
-// const stdErrTransform = new Stream.Transform({
-//     transform(chunk, encoding, callback) {
-//         process.stderr.write(chunk);
-//         log.write(chunk);
-//         callback(null, chunk.toString());
-//     }
-// });
-
-// consoleStamp(logger, {
-//     stdout: stdOutTransform,
-//     stderr: stdErrTransform,
-//     format: `:date(yyyy-mm-dd HH:MM:ss) :label() :msg()`,
-//       tokens: {
-//           label: (t) => {
-//               return `${t.method.toUpperCase()}`;
-//           }
-//       }
-// });
-
 
 const CONFIG_FILE = "/data/sense.conf";
 
