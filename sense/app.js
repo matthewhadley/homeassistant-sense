@@ -178,7 +178,7 @@ const connect = async function (conf) {
                     i = 0;
                 }
                 i++;
-            } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event") {
+            } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event" || type === "recent_history") {
                 // console.info(JSON.stringify(data, 0,0));
             } else {
                 console.info(timestamp, 'INFO', JSON.stringify(data, 0,0));
