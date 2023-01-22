@@ -1,3 +1,9 @@
+## [0.7.8] - 2023-01-22
+
+### Fixed
+
+fix missing log output
+
 ## [0.7.8] - 2023-01-18
 
 ### Changed

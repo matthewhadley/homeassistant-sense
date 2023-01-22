@@ -94,8 +94,8 @@ const connect = async function (conf) {
     logger.info(`Connecting to websocket... (message interval rate: ${SENSE_INTERVAL})`)
     ws.on('close', function(code, reason) {
         logger.warn('Connection Closed');
-        logger.warn('Code:', code);
-        logger.warn('Reason:', reason.toString());
+        logger.warn(`Code: ${code}`);
+        logger.warn(`Reason: ${reason.toString()}`);
         logger.warn('Attempting to reconnect');
         setTimeout(async function () {
             let conf = await auth(true);
@@ -103,7 +103,7 @@ const connect = async function (conf) {
         }, 5000);
     });
     ws.on('error', function(error) {
-        logger.warn('Connection Error', error);
+        logger.warn(`Connection Error ${error}`);
     });
     ws.on('open', function open() {
         ws.on('message', async function message(data) {
@@ -151,7 +151,7 @@ const connect = async function (conf) {
             // } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event" || type === "recent_history") {
             //     // logger.info(JSON.stringify(data, 0,0));
             // } else {
-            //     logger.info(timestamp, 'INFO', JSON.stringify(data, 0,0));
+            //     logger.info(JSON.stringify(data, 0,0));
             // }
         });
     });
