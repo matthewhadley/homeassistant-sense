@@ -13,7 +13,7 @@ jobs:
       - name: Version Bump
         id: version_bump
         run: |
-          c=$(grep version < sense/config.yaml | grep -o '[0-9\.]*');p=$(git show HEAD~1:sense/config.yaml | grep version | grep -o '[0-9\.]*');[[ $c != $p ]] && echo VERSION_BUMP=true >> $GITHUB_ENV
+          c=$(grep version < sense/config.yaml | grep -o '[0-9\.]*');p=$(git show HEAD~1:sense/config.yaml | grep version | grep -o '[0-9\.]*');echo $c $p
       - name: Echo Message
         run: |
           echo Hello World
