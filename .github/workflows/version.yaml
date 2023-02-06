@@ -1,0 +1,21 @@
+name: Version
+on: push
+
+jobs:
+  build:
+    name: Check Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Version Bump
+        id: version_bump
+        run: |
+          echo ::set-env name=VERSION_BUMP::$(c=$(grep version < sense/config.yaml | grep -op '[0-9\.]*');p=$(git show HEAD~1:sense/config.yaml | grep version | grep -op '[0-9\.]*');[[ $c != $p ]] && echo 'true')
+      - name: Echo Message
+        run: |
+          echo Hello World
+      - name: Echo Message
+        if: env.VERSION_BUMP != 'true'
+        run: |
+          echo New Version
