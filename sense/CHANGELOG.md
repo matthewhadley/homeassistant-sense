@@ -1,50 +1,56 @@
-## [0.7.8] - 2023-01-22
+## [0.7.10] - 2023-01-22
+
+### Added
+
+- [internal] github workflow to publish add-on
+
+## [0.7.9] - 2023-01-22
 
 ### Fixed
 
-fix missing log output
+- fix missing log output
 
 ## [0.7.8] - 2023-01-18
 
 ### Changed
 
-more changes to logging
+- more changes to logging
 
 ## [0.7.7] - 2023-01-18
 
 ### Changed
 
-changes to console
+- changes to console
 
 ## [0.7.6] - 2023-01-18
 
 ### Changed
 
-change console
+- change console
 
 ## [0.7.5] - 2023-01-18
 
 ### Changed
 
-change log output
+- change log output
 
 ## [0.7.4] - 2023-01-18
 
 ### Changed
 
-Debug log output
+- Debug log output
 
 ## [0.7.3] - 2023-01-14
 
 ### Fixed
 
-Writeable log file
+- Writeable log file
 
 ## [0.7.2] - 2023-01-14
 
 ### Added
 
-Debug log file
+- Debug log file
 
 ## [0.7.1] - 2023-01-12
 

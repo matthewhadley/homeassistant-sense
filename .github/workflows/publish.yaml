@@ -19,6 +19,7 @@ jobs:
             echo VERSION_BUMP=true >> $GITHUB_ENV;
           fi
       - name: Echo Version
+        if: env.VERSION_BUMP == 'true'
         run: |
           echo "New Version Detected $(grep version < sense/config.yaml | grep -o '[0-9\.]*')"
       - name: Login to DockerHub
