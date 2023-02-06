@@ -21,6 +21,7 @@ jobs:
       - name: Echo Version
         run: |
           echo "New Version Detected ${{ env.VERSION }}"
+          cat "$GITHUB_ENV"
       - name: Login to DockerHub
         if: env.VERSION != ''
         uses: docker/login-action@v2
