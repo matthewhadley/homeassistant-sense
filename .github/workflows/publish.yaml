@@ -3,7 +3,7 @@ on: push
 
 jobs:
   build:
-    name: Check Version
+    name: Publish On Version Bump
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
