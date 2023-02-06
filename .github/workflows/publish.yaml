@@ -15,13 +15,13 @@ jobs:
         run: |
           c=$(grep version < sense/config.yaml | grep -o '[0-9\.]*');
           p=$(git show HEAD~1:sense/config.yaml | grep version | grep -o '[0-9\.]*');
-          echo "Current Version: $c"
-          echo " Commit Version: $p"
+          echo "Current version: $c"
+          echo " Commit version: $p"
           if [[ ! -z "$c" && "$c" != "$p" ]]; then
-            echo "New Version Detected: $c"
+            echo "New version detected: $c"
             echo VERSION_BUMP=true >> $GITHUB_ENV;
           else
-            echo "No Version Change"
+            echo "No version change"
           fi
       - name: Login to DockerHub
         if: env.VERSION_BUMP == 'true'
