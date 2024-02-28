@@ -10,6 +10,7 @@ const SENSE_EMAIL = process.env.SENSE_EMAIL;
 const SENSE_PASSWORD = process.env.SENSE_PASSWORD;
 const SENSE_INTERVAL = parseInt(process.env.SENSE_INTERVAL);
 const SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
+const DEBUG = (process.env.SENSE_DEBUG === "true");
 
 const SENSE_API_URI="https://api.sense.com/apiservice/api/v1"
 const SENSE_WS_URI="wss://clientrt.sense.com/monitors"
@@ -26,6 +27,11 @@ logger.warn = function (message) {
 }
 logger.error = function (message) {
     logger('ERROR', message)
+}
+logger.debug = function (message) {
+    if (DEBUG) {
+        logger('DEBUG', message)
+    };
 }
 
 logger.info(`Sense ${SENSE_VERSION}`);
@@ -122,7 +128,7 @@ const connect = async function (conf) {
                 }
             } else if (type === "realtime_update") {
                 if (i === SENSE_INTERVAL || i === 0) {
-                    // logger.info(data.payload.d_w);
+                    logger.debug(data.payload.d_w);
                     const response = await fetch("http://supervisor/core/api/states/sensor.sense_realtime_energy_usage", {
                         method: 'POST',
                         body: JSON.stringify({
