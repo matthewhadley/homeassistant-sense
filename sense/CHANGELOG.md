@@ -1,3 +1,9 @@
+## [0.7.12] - 2024-02-28
+
+### Added
+
+- increase debug log output
+
 ## [0.7.11] - 2024-02-27
 
 ### Added

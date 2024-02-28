@@ -153,12 +153,13 @@ const connect = async function (conf) {
                     i = 0;
                 }
                 i++;
+            } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event" || type === "recent_history") {
+                logger.debug(type);
+                logger.debug(JSON.stringify(data, 0,0));
+            } else {
+                logger.debug(type);
+                logger.debug(JSON.stringify(data, 0,0));
             }
-            // } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event" || type === "recent_history") {
-            //     // logger.info(JSON.stringify(data, 0,0));
-            // } else {
-            //     logger.info(JSON.stringify(data, 0,0));
-            // }
         });
     });
 }
