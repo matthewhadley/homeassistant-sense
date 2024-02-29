@@ -107,7 +107,7 @@ const connect = async function (conf) {
     `Connecting to websocket... (message interval rate: ${SENSE_INTERVAL})`,
   );
   ws.on("pong", function () {
-    logger.debug("Got pong");
+    logger.debug("pong");
     ws.isAlive = true;
   });
   ws.on("close", function (code, reason) {
@@ -130,11 +130,11 @@ const connect = async function (conf) {
     //  begin interval
     interval = setInterval(function ping() {
       if (ws.isAlive === false) {
-        logger.debug("Pong timeout");
+        logger.debug("pong timeout");
         return ws.terminate();
       }
       ws.isAlive = false;
-      logger.debug("Send ping");
+      logger.debug("ping");
       ws.ping();
     }, pingInterval);
 
