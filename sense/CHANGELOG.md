@@ -1,3 +1,13 @@
+## [0.8.0] - 2024-02-29
+
+### Added
+
+- add ping/pong connection status check
+
+### Changed
+
+- reduce log output
+
 ## [0.7.12] - 2024-02-28
 
 ### Added

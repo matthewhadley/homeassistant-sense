@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "lint": "prettier app.js --check",
+    "format": "prettier app.js --write"
   },
   "author": "matthewhadley@gmail.com",
   "license": "MIT",
@@ -14,5 +16,8 @@
     "dayjs": "^1.11.7",
     "node-fetch": "^3.3.0",
     "ws": "^8.12.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5"
   }
 }
