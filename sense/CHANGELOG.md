@@ -1,3 +1,9 @@
+## [0.8.2] - 2024-02-01
+
+### Fixed
+
+- remove unused variable
+
 ## [0.8.1] - 2024-02-29
 
 ### Changed

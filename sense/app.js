@@ -113,7 +113,6 @@ const connect = async function (conf) {
   ws.on("close", function (code, reason) {
     clearInterval(interval);
     logger.warn("Connection Closed");
-    clearTimeout(pingTimeout);
     logger.warn(`Code: ${code}`);
     logger.warn(`Reason: ${reason.toString()}`);
     logger.warn("Attempting to reconnect");
