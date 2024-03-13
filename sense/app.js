@@ -36,6 +36,7 @@ logger.debug = function (message) {
 
 logger.info(`Sense ${SENSE_VERSION}`);
 
+// handle authenticating to websocket API
 async function auth(reauth) {
   let conf = {};
   try {
@@ -94,24 +95,73 @@ async function auth(reauth) {
   return conf;
 }
 
+// save previous recorded state so that only record new entries in cases
+// where sense api is not reporting (new) values
+let lastRecordedState = {
+  value: null,
+  timestamp: null
+};
+
+// post data to homeassistant
+async function recordEnergyUsage(data) {
+  if (!data.value) {
+    return;
+  }
+  if (lastRecordedState.timestamp === data.timestamp) {
+    return;
+  }
+  logger.debug(`${data.value} (recorded)`);
+  const response = await fetch(
+    "http://supervisor/core/api/states/sensor.sense_realtime_energy_usage",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        state: data.value,
+        // not needed?
+        // timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+        attributes: {
+          friendly_name: "Sense Realtime Energy Usage",
+          state_class: "measurement",
+          unit_of_measurement: "W",
+          device_class: "energy",
+          icon: "mdi: flash"
+        },
+      }),
+      headers: {
+        Authorization: `Bearer ${SUPERVISOR_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+  lastRecordedState = data;
+}
+
+// connect to sense websocket API
 const connect = async function (conf) {
+  logger.info('Connecting to websocket...');
+
   const URI = `${SENSE_WS_URI}/${conf.monitor_id}/realtimefeed?access_token=${conf.access_token}`;
   const ws = new WebSocket(URI);
 
+  let sense_data = {
+    value: null,
+    timestamp: null
+  };
   ws.isAlive = false;
-  let interval;
+  let recordIntervalFn;
+  let pingIntervalFn;
   const pingInterval = 30000;
 
-  let i = 0;
-  logger.info(
-    `Connecting to websocket... (message interval rate: ${SENSE_INTERVAL})`,
-  );
+  // acknowledge pong events as meaning the websocket connect is alive
   ws.on("pong", function () {
     logger.debug("pong");
     ws.isAlive = true;
   });
+
+  // cleanup on websocket close, then attempt to reconnect
   ws.on("close", function (code, reason) {
-    clearInterval(interval);
+    clearInterval(pingIntervalFn);
+    clearInterval(recordIntervalFn);
     logger.warn("Connection Closed");
     logger.warn(`Code: ${code}`);
     logger.warn(`Reason: ${reason.toString()}`);
@@ -121,13 +171,20 @@ const connect = async function (conf) {
       connect(conf);
     }, 5000);
   });
+
   ws.on("error", function (error) {
     logger.warn(`Error: ${error}`);
   });
+
   ws.on("open", function open() {
+    // begin reording interval
+    recordIntervalFn = setInterval(async function report() {
+      recordEnergyUsage(sense_data);
+    }, (SENSE_INTERVAL * 1000));
+
+    // begin ping/pong interval to ensure websocket connection stays alive
     ws.isAlive = true;
-    //  begin interval
-    interval = setInterval(function ping() {
+    pingIntervalFn = setInterval(function ping() {
       if (ws.isAlive === false) {
         logger.debug("pong timeout");
         return ws.terminate();
@@ -151,34 +208,11 @@ const connect = async function (conf) {
         } else if (error === "Unavailable") {
         }
       } else if (type === "realtime_update") {
-        if (i === SENSE_INTERVAL || i === 0) {
-          logger.debug(data.payload.d_w);
-          const response = await fetch(
-            "http://supervisor/core/api/states/sensor.sense_realtime_energy_usage",
-            {
-              method: "POST",
-              body: JSON.stringify({
-                state: data.payload.d_w,
-                // not needed?
-                // timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
-                attributes: {
-                  friendly_name: "Sense Realtime Energy Usage",
-                  state_class: "measurement",
-                  unit_of_measurement: "W",
-                  device_class: "energy",
-                  icon: "mdi: flash",
-                },
-              }),
-              headers: {
-                Authorization: `Bearer ${SUPERVISOR_TOKEN}`,
-                "Content-Type": "application/json",
-              },
-            },
-          );
-
-          i = 0;
-        }
-        i++;
+        sense_data = {
+          value: data.payload.d_w,
+          timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss')
+        };
+        logger.debug(data.payload.d_w);
       }
       // } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event" || type === "recent_history") {
       //     // logger.debug(type);

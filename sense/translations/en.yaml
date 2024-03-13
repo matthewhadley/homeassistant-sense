@@ -11,7 +11,7 @@ configuration:
   interval:
     name: Interval
     description: >-
-      Read data every n websocket messages (from 1 to 15)
+      Record data every n seconds
   debug:
     name: Debug
     description: >-

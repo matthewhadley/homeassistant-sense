@@ -1,3 +1,9 @@
+## [0.9.0] - 2024-03-13
+
+### Changed
+
+- move to timed interval based recording of values vs number of messages for consistent interval reporting
+
 ## [0.8.2] - 2024-02-01
 
 ### Fixed
