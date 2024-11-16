@@ -112,7 +112,7 @@ async function recordEnergyUsage(data) {
   }
   logger.debug(`${data.value} (recorded)`);
   const response = await fetch(
-    "http://supervisor/core/api/states/sensor.sense_realtime_energy_usage",
+    "http://supervisor/core/api/states/sensor.sense_realtime_power",
     {
       method: "POST",
       body: JSON.stringify({
@@ -120,10 +120,10 @@ async function recordEnergyUsage(data) {
         // not needed?
         // timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
         attributes: {
-          friendly_name: "Sense Realtime Energy Usage",
+          friendly_name: "Sense Realtime Power",
           state_class: "measurement",
           unit_of_measurement: "W",
-          device_class: "energy",
+          device_class: "power",
           icon: "mdi: flash"
         },
       }),

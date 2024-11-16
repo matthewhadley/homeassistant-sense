@@ -1,3 +1,9 @@
+## [0.10.0] - 2024-11-16
+
+### BREAKING
+
+- rename sensor to "Sense Realtime Power" with device type "power"
+
 ## [0.9.0] - 2024-03-13
 
 ### Changed
