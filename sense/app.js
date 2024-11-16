@@ -124,7 +124,7 @@ async function recordEnergyUsage(data) {
           state_class: "measurement",
           unit_of_measurement: "W",
           device_class: "power",
-          icon: "mdi: flash"
+          icon: "mdi:flash"
         },
       }),
       headers: {
