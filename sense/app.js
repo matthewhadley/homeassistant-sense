@@ -3,7 +3,7 @@ import WebSocket from "ws";
 import fetch from "node-fetch";
 import fs from "fs/promises";
 
-const CONFIG_FILE = "/data/sense.conf";
+const CONFIG_FILE = process.env.SENSE_CONFIG_FILE || "/data/sense.conf";
 
 const SENSE_VERSION = process.env.SENSE_VERSION;
 const SENSE_EMAIL = process.env.SENSE_EMAIL;
@@ -11,9 +11,11 @@ const SENSE_PASSWORD = process.env.SENSE_PASSWORD;
 const SENSE_INTERVAL = parseInt(process.env.SENSE_INTERVAL);
 const SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
 const DEBUG = process.env.SENSE_DEBUG === "true";
+const DEBUG_DISABLE_HA = process.env.SENSE_DISABLE_HA === "true"
 
 const SENSE_API_URI = "https://api.sense.com/apiservice/api/v1";
 const SENSE_WS_URI = "wss://clientrt.sense.com/monitors";
+const SENSE_TIMEOUT = (process.env.SENSE_TIMEOUT * 1000);
 
 const logger = function (level, message) {
   let timestamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
@@ -110,30 +112,36 @@ async function recordEnergyUsage(data) {
   if (lastRecordedState.timestamp === data.timestamp) {
     return;
   }
-  logger.debug(`${data.value} (recorded)`);
-  const response = await fetch(
-    "http://supervisor/core/api/states/sensor.sense_realtime_power",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        state: data.value,
-        // not needed?
-        // timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
-        attributes: {
-          friendly_name: "Sense Realtime Power",
-          state_class: "measurement",
-          unit_of_measurement: "W",
-          device_class: "power",
-          icon: "mdi:flash"
+  if (DEBUG_DISABLE_HA !== true) {
+    try {
+      const response = await fetch(
+        "http://supervisor/core/api/states/sensor.sense_realtime_power",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            state: data.value,
+            // not needed?
+            // timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+            attributes: {
+              friendly_name: "Sense Realtime Power",
+              state_class: "measurement",
+              unit_of_measurement: "W",
+              device_class: "power",
+              icon: "mdi:flash"
+            },
+          }),
+          headers: {
+            Authorization: `Bearer ${SUPERVISOR_TOKEN}`,
+            "Content-Type": "application/json",
+          },
         },
-      }),
-      headers: {
-        Authorization: `Bearer ${SUPERVISOR_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-    },
-  );
-  lastRecordedState = data;
+      );
+      logger.debug(`${data.value} (recorded)`);
+      lastRecordedState = data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 // connect to sense websocket API
@@ -191,6 +199,12 @@ const connect = async function (conf) {
       }
       ws.isAlive = false;
       logger.debug("ping");
+
+      let now = Date.now();
+      if (!sense_data || (sense_data.epoch + SENSE_TIMEOUT) > Date.now()) {
+        logger.debug('sense data timout detected, restarting connection');
+        return ws.terminate();
+      }
       ws.ping();
     }, pingInterval);
 
@@ -210,7 +224,8 @@ const connect = async function (conf) {
       } else if (type === "realtime_update") {
         sense_data = {
           value: data.payload.d_w,
-          timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss')
+          timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+          epoch: Date.now()
         };
         logger.debug(data.payload.d_w);
       }

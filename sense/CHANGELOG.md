@@ -1,3 +1,14 @@
+## [0.11.0] - 2024-11-18
+
+### Fixed
+
+- gracefully catch network errors when updating HA
+
+### Added
+
+- timeout for receiving sense data, after which websocket coonection gets re-established
+- local development flags
+
 ## [0.10.1] - 2024-11-16
 
 ### Fixed
