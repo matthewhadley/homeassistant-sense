@@ -15,7 +15,7 @@ const DEBUG_DISABLE_HA = process.env.SENSE_DISABLE_HA === "true"
 
 const SENSE_API_URI = "https://api.sense.com/apiservice/api/v1";
 const SENSE_WS_URI = "wss://clientrt.sense.com/monitors";
-const SENSE_TIMEOUT = (process.env.SENSE_TIMEOUT * 1000);
+const SENSE_TIMEOUT = ((parseInt(process.env.SENSE_TIMEOUT) || 120) * 1000);
 
 const logger = function (level, message) {
   let timestamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
@@ -201,9 +201,12 @@ const connect = async function (conf) {
       ws.isAlive = false;
       logger.debug("ping");
 
-      if (sense_data.epoch === null || (sense_data.epoch + SENSE_TIMEOUT) < Date.now()) {
-        logger.debug('Sense data timout detected, restarting connection');
+      let now = Date.now();
+      if ((sense_data.epoch + SENSE_TIMEOUT) < now) {
+        logger.debug(`Sense data timeout detected (${((now - sense_data.epoch)/1000)} seconds), restarting connection`);
         return ws.terminate();
+      } else {
+        logger.debug(`Sense data rate good (${((now - sense_data.epoch)/1000)} seconds)`);
       }
       ws.ping();
     }, pingInterval);
