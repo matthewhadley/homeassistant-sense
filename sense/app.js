@@ -153,7 +153,8 @@ const connect = async function (conf) {
 
   let sense_data = {
     value: null,
-    timestamp: null
+    timestamp: null,
+    epoch: null
   };
   ws.isAlive = false;
   let recordIntervalFn;
@@ -200,9 +201,8 @@ const connect = async function (conf) {
       ws.isAlive = false;
       logger.debug("ping");
 
-      let now = Date.now();
-      if (!sense_data || (sense_data.epoch + SENSE_TIMEOUT) > Date.now()) {
-        logger.debug('sense data timout detected, restarting connection');
+      if (sense_data.epoch === null || (sense_data.epoch + SENSE_TIMEOUT) < Date.now()) {
+        logger.debug('Sense data timout detected, restarting connection');
         return ws.terminate();
       }
       ws.ping();

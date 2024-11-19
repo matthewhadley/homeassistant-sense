@@ -1,3 +1,10 @@
+## [0.12.0] - 2024-11-18
+
+### Fixed
+
+- Timeout logic
+- Timeout config not showing
+
 ## [0.11.0] - 2024-11-18
 
 ### Fixed
