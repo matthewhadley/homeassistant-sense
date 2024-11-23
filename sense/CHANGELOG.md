@@ -1,3 +1,9 @@
+## [0.13.2] - 2024-11-23
+
+### Fixed
+
+- Fix devices attribute error
+
 ## [0.13.1] - 2024-11-23
 
 ### Changed
