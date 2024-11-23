@@ -114,7 +114,7 @@ async function recordEnergyUsage(data) {
   }
 
   let devices = data.devices.reduce((result, device) => {
-    result[device.id] = (device.w).toFixed(0);
+    result[device.name.toLowerCase().replace(/\s+/g, '_')] = (device.w).toFixed(0);
     return result;
   }, {});
 

@@ -1,3 +1,9 @@
+## [0.13.4] - 2024-11-23
+
+### Changed
+
+- Use device name for property as ids are random
+
 ## [0.13.3] - 2024-11-23
 
 ### Changed
