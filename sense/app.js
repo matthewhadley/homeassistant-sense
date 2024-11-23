@@ -112,6 +112,14 @@ async function recordEnergyUsage(data) {
   if (lastRecordedState.timestamp === data.timestamp) {
     return;
   }
+
+  let devices = data.devices.map(device => ({
+    entity_id: `sense_realtime_${device.id}_power`,
+    friendly_name: `${device.name} Power`,
+    state: device.w
+  }));
+
+  logger.debug(JSON.stringify(devices, 0,0));
   if (DEBUG_DISABLE_HA !== true) {
     try {
       const response = await fetch(
@@ -127,7 +135,8 @@ async function recordEnergyUsage(data) {
               state_class: "measurement",
               unit_of_measurement: "W",
               device_class: "power",
-              icon: "mdi:flash"
+              icon: "mdi:flash",
+              devices: devices
             },
           }),
           headers: {
@@ -227,17 +236,19 @@ const connect = async function (conf) {
       } else if (type === "realtime_update") {
         sense_data = {
           value: data.payload.d_w,
+          devices: data.payload.devices,
           timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
           epoch: Date.now()
         };
         logger.debug(data.payload.d_w);
+        // logger.debug(JSON.stringify(data.payload, 0,0));
       }
       // } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event" || type === "recent_history") {
-      //     // logger.debug(type);
-      //     // logger.debug(JSON.stringify(data, 0,0));
+      //     logger.debug(type);
+      //     logger.debug(JSON.stringify(data, 0,0));
       // } else {
-      //     // logger.debug(type);
-      //     // logger.debug(JSON.stringify(data, 0,0));
+      //     logger.debug(type);
+      //     logger.debug(JSON.stringify(data, 0,0));
       // }
     });
   });
