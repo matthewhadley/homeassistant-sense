@@ -1,3 +1,9 @@
+## [0.13.3] - 2024-11-23
+
+### Changed
+
+- Round attribute values
+
 ## [0.13.2] - 2024-11-23
 
 ### Fixed
