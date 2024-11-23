@@ -1,3 +1,9 @@
+## [0.13.1] - 2024-11-23
+
+### Changed
+
+- Reformat devices attribute
+
 ## [0.13.0] - 2024-11-23
 
 ### Added

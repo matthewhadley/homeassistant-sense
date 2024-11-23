@@ -113,11 +113,10 @@ async function recordEnergyUsage(data) {
     return;
   }
 
-  let devices = data.devices.map(device => ({
-    entity_id: `sense_realtime_${device.id}_power`,
-    friendly_name: `${device.name} Power`,
-    state: device.w
-  }));
+  let devices = data.devices.reduce((result, device) => {
+    result[${device.id}] = device.w;
+    return result;
+  }, {});
 
   logger.debug(JSON.stringify(devices, 0,0));
   if (DEBUG_DISABLE_HA !== true) {
