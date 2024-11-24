@@ -1,3 +1,9 @@
+## [0.13.5] - 2024-11-23
+
+### Changed
+
+- set device values to ints
+
 ## [0.13.4] - 2024-11-23
 
 ### Changed
