@@ -100,13 +100,13 @@ async function auth(reauth) {
 // save previous recorded state so that only record new entries in cases
 // where sense api is not reporting (new) values
 let lastRecordedState = {
-  value: null,
+  state: null,
   timestamp: null
 };
 
 // post data to homeassistant
 async function recordEnergyUsage(data) {
-  if (!data.value) {
+  if (!data.state) {
     return;
   }
   if (lastRecordedState.timestamp === data.timestamp) {
@@ -140,7 +140,7 @@ async function recordEnergyUsage(data) {
           },
         },
       );
-      logger.debug(`${data.value} (recorded)`);
+      logger.debug(`${data.state} (recorded)`);
       lastRecordedState = data;
     } catch (error) {
       console.log(error);
