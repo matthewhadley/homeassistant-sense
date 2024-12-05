@@ -1,3 +1,9 @@
+## [0.15.0] - 2024-12-05
+
+### Fixed
+
+- voltage data and data format
+
 ## [0.14.0] - 2024-12-05
 
 ### Added

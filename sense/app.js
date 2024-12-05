@@ -113,17 +113,7 @@ async function recordEnergyUsage(data) {
     return;
   }
 
-  let devices = data.devices.reduce((result, device) => {
-    result[device.name.toLowerCase().replace(/\s+/g, '_')] = parseInt((device.w));
-    return result;
-  }, {});
-
-  let voltage = {
-    l1: parseFloat(data.voltage[0].toFixed(1)),
-    l2: parseFloat(data.voltage[1].toFixed(1))
-  };
-
-  logger.debug(JSON.stringify(devices, 0,0));
+  logger.debug(JSON.stringify(data.devices, 0,0));
   if (DEBUG_DISABLE_HA !== true) {
     try {
       const response = await fetch(
@@ -131,7 +121,7 @@ async function recordEnergyUsage(data) {
         {
           method: "POST",
           body: JSON.stringify({
-            state: data.value,
+            state: data.state,
             // not needed?
             // timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
             attributes: {
@@ -140,8 +130,8 @@ async function recordEnergyUsage(data) {
               unit_of_measurement: "W",
               device_class: "power",
               icon: "mdi:flash",
-              devices: devices,
-              voltage: voltage
+              devices: data.devices,
+              voltage: data.voltage
             },
           }),
           headers: {
@@ -166,9 +156,8 @@ const connect = async function (conf) {
   const ws = new WebSocket(URI);
 
   let sense_data = {
-    value: null,
-    timestamp: null,
-    epoch: null
+    state: null,
+    timestamp: null
   };
   ws.isAlive = false;
   let recordIntervalFn;
@@ -216,11 +205,11 @@ const connect = async function (conf) {
       logger.debug("ping");
 
       let now = Date.now();
-      if ((sense_data.epoch + SENSE_TIMEOUT) < now) {
-        logger.debug(`Sense data timeout detected (${((now - sense_data.epoch)/1000)} seconds), restarting connection`);
+      if ((sense_data.timestamp + SENSE_TIMEOUT) < now) {
+        logger.debug(`Sense data timeout detected (${((now - sense_data.timestamp)/1000)} seconds), restarting connection`);
         return ws.terminate();
       } else {
-        logger.debug(`Sense data rate good (${((now - sense_data.epoch)/1000)} seconds)`);
+        logger.debug(`Sense data rate good (${((now - sense_data.timestamp)/1000)} seconds)`);
       }
       ws.ping();
     }, pingInterval);
@@ -239,14 +228,23 @@ const connect = async function (conf) {
         } else if (error === "Unavailable") {
         }
       } else if (type === "realtime_update") {
+        let now = Date.now();
         sense_data = {
-          value: data.payload.d_w,
-          devices: data.payload.devices,
-          timestamp: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
-          epoch: Date.now()
+          state: data.payload.d_w,
+          devices: data.payload.devices.reduce((result, device) => {
+            result[device.name.toLowerCase().replace(/\s+/g, '_')] = parseInt((device.w));
+            return result;
+          }, {}),
+          voltage: {
+            l1: parseFloat(data.payload.voltage[0].toFixed(1)),
+            l2: parseFloat(data.payload.voltage[1].toFixed(1))
+          },
+          timestamp: now,
+          // timestamp: dayjs(now).format('YYYY-MM-DDTHH:mm:ss'),
         };
-        logger.debug(data.payload.d_w);
         // logger.debug(JSON.stringify(data.payload, 0,0));
+        // logger.debug(JSON.stringify(sense_data, 0,0));
+        logger.debug(sense_data.state);
       }
       // } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event" || type === "recent_history") {
       //     logger.debug(type);
