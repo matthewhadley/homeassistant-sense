@@ -5,7 +5,7 @@ import fs from "fs/promises";
 
 const CONFIG_FILE = process.env.SENSE_CONFIG_FILE || "/data/sense.conf";
 
-const SENSE_VERSION = process.env.SENSE_VERSION;
+const SENSE_VERSION = process.env.SENSE_VERSION || 'dev';
 const SENSE_EMAIL = process.env.SENSE_EMAIL;
 const SENSE_PASSWORD = process.env.SENSE_PASSWORD;
 const SENSE_INTERVAL = parseInt(process.env.SENSE_INTERVAL);
@@ -17,22 +17,28 @@ const SENSE_API_URI = "https://api.sense.com/apiservice/api/v1";
 const SENSE_WS_URI = "wss://clientrt.sense.com/monitors";
 const SENSE_TIMEOUT = ((parseInt(process.env.SENSE_TIMEOUT) || 120) * 1000);
 
-const logger = function (level, message) {
+const logger = function (level, ...messages) {
   let timestamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
-  console.log(`[${timestamp}] ${level}: ${message}`);
+
+  let combinedMessage = messages
+    .map(message => (typeof message === "object" ? JSON.stringify(message) : message))
+    .join(" ");
+
+  console.log(`[${timestamp}] ${level}: ${combinedMessage}`);
 };
-logger.info = function (message) {
-  logger("INFO", message);
+
+logger.info = function (...messages) {
+  logger("INFO", ...messages);
 };
-logger.warn = function (message) {
-  logger("WARN", message);
+logger.warn = function (...messages) {
+  logger("WARN", ...messages);
 };
-logger.error = function (message) {
-  logger("ERROR", message);
+logger.error = function (...messages) {
+  logger("ERROR", ...messages);
 };
-logger.debug = function (message) {
+logger.debug = function (...messages) {
   if (DEBUG) {
-    logger("DEBUG", message);
+    logger("DEBUG", ...messages);
   }
 };
 
@@ -112,8 +118,6 @@ async function recordEnergyUsage(data) {
   if (lastRecordedState.timestamp === data.timestamp) {
     return;
   }
-
-  logger.debug(JSON.stringify(data.devices, 0,0));
   if (DEBUG_DISABLE_HA !== true) {
     try {
       const response = await fetch(
@@ -140,7 +144,7 @@ async function recordEnergyUsage(data) {
           },
         },
       );
-      logger.debug(`${data.state} (recorded)`);
+      logger.debug(data.state, data.devices, '(recorded)');
       lastRecordedState = data;
     } catch (error) {
       console.log(error);
@@ -242,16 +246,16 @@ const connect = async function (conf) {
           timestamp: now,
           // timestamp: dayjs(now).format('YYYY-MM-DDTHH:mm:ss'),
         };
-        // logger.debug(JSON.stringify(data.payload, 0,0));
-        // logger.debug(JSON.stringify(sense_data, 0,0));
+        // logger.debug(data.payload);
+        // logger.debug(sense_data);
         logger.debug(sense_data.state);
       }
       // } else if (type === "monitor_info" || type === "data_change" || type === "device_states" || type === "new_timeline_event" || type === "recent_history") {
       //     logger.debug(type);
-      //     logger.debug(JSON.stringify(data, 0,0));
+      //     logger.debug(data);
       // } else {
       //     logger.debug(type);
-      //     logger.debug(JSON.stringify(data, 0,0));
+      //     logger.debug(data);
       // }
     });
   });
