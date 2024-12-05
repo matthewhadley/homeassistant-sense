@@ -118,6 +118,11 @@ async function recordEnergyUsage(data) {
     return result;
   }, {});
 
+  let voltage = {
+    l1: parseFloat(data.voltage[0].toFixed(1)),
+    l2: parseFloat(data.voltage[1].toFixed(1))
+  };
+
   logger.debug(JSON.stringify(devices, 0,0));
   if (DEBUG_DISABLE_HA !== true) {
     try {
@@ -135,7 +140,8 @@ async function recordEnergyUsage(data) {
               unit_of_measurement: "W",
               device_class: "power",
               icon: "mdi:flash",
-              devices: devices
+              devices: devices,
+              voltage: voltage
             },
           }),
           headers: {
