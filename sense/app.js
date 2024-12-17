@@ -16,12 +16,21 @@ const DEBUG_DISABLE_HA = process.env.SENSE_DISABLE_HA === "true"
 const SENSE_API_URI = "https://api.sense.com/apiservice/api/v1";
 const SENSE_WS_URI = "wss://clientrt.sense.com/monitors";
 const SENSE_TIMEOUT = ((parseInt(process.env.SENSE_TIMEOUT) || 120) * 1000);
+const SENSE_AUTH_RETRY_TIMEOUT = 60;
 
 const logger = function (level, ...messages) {
   let timestamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
   let combinedMessage = messages
-    .map(message => (typeof message === "object" ? JSON.stringify(message) : message))
+    .map(message => {
+      if (message instanceof Error) {
+        return message.stack.replace('Error: ','').replaceAll('\n    ',' ');
+      } else if (typeof message === "object") {
+        return JSON.stringify(message);
+      } else {
+        return message;
+      }
+    })
     .join(" ");
 
   console.log(`[${timestamp}] ${level}: ${combinedMessage}`);
@@ -44,63 +53,78 @@ logger.debug = function (...messages) {
 
 logger.info(`Sense ${SENSE_VERSION}`);
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // handle authenticating to websocket API
 async function auth(reauth) {
   let conf = {};
   try {
     conf = JSON.parse(await fs.readFile(CONFIG_FILE, "utf8"));
-  } catch (error) {}
+  } catch (error) {
+    logger.info("No cached Access Token found");
+  }
 
-  if (conf.access_token && !reauth) {
-    logger.info("Using cached Access Token");
+  try {
+    if (conf.access_token && !reauth) {
+      logger.info("Using cached Access Token");
+      return conf;
+    }
+
+    if (conf.refresh_token) {
+      logger.info("Requesting new Access Token via Refresh Token");
+
+      const conf = JSON.parse(await fs.readFile(CONFIG_FILE, "utf8"));
+
+      const params = new URLSearchParams();
+      params.append("user_id", conf.user_id);
+      params.append("refresh_token", conf.refresh_token);
+
+      const response = await fetch(`${SENSE_API_URI}/renew`, {
+        method: "POST",
+        body: params,
+      });
+      const data = await response.json();
+
+      logger.info("Got Access Token");
+
+      conf.access_token = data.access_token;
+      conf.refresh_token = data.refresh_token;
+
+      await fs.writeFile(CONFIG_FILE, JSON.stringify(conf));
+    } else {
+      logger.info("Requesting new Access Token");
+
+      const params = new URLSearchParams();
+      params.append("email", SENSE_EMAIL);
+      params.append("password", SENSE_PASSWORD);
+
+      const response = await fetch(`${SENSE_API_URI}/authenticate`, {
+        method: "POST",
+        body: params,
+      });
+      const data = await response.json();
+
+      if (data.status && data.status === "error") {
+        throw new Error(`Error fetching Access Token - ${data.error_reason}`);
+      }
+
+      logger.info("Got Access Token");
+      conf.access_token = data.access_token;
+      conf.refresh_token = data.refresh_token;
+      conf.user_id = data.user_id;
+      conf.monitor_id = data.monitors[0].id;
+
+      await fs.writeFile(CONFIG_FILE, JSON.stringify(conf));
+    }
     return conf;
+  } catch (error) {
+    logger.error(error);
+    logger.warn(`Attempting to re-auth in ${SENSE_AUTH_RETRY_TIMEOUT} seconds...`);
+    await delay((SENSE_AUTH_RETRY_TIMEOUT * 1000));
+    return auth(reauth);
   }
-
-  if (conf.refresh_token) {
-    logger.info("Requesting new Access Token via Refresh Token");
-
-    const conf = JSON.parse(await fs.readFile(CONFIG_FILE, "utf8"));
-
-    const params = new URLSearchParams();
-    params.append("user_id", conf.user_id);
-    params.append("refresh_token", conf.refresh_token);
-
-    const response = await fetch(`${SENSE_API_URI}/renew`, {
-      method: "POST",
-      body: params,
-    });
-    const data = await response.json();
-
-    logger.info("Got Access Token");
-
-    conf.access_token = data.access_token;
-    conf.refresh_token = data.refresh_token;
-
-    await fs.writeFile(CONFIG_FILE, JSON.stringify(conf));
-  } else {
-    logger.info("Requesting new Access Token");
-
-    const params = new URLSearchParams();
-    params.append("email", SENSE_EMAIL);
-    params.append("password", SENSE_PASSWORD);
-
-    const response = await fetch(`${SENSE_API_URI}/authenticate`, {
-      method: "POST",
-      body: params,
-    });
-    const data = await response.json();
-
-    logger.info("Got Access Token");
-
-    conf.access_token = data.access_token;
-    conf.refresh_token = data.refresh_token;
-    conf.user_id = data.user_id;
-    conf.monitor_id = data.monitors[0].id;
-
-    await fs.writeFile(CONFIG_FILE, JSON.stringify(conf));
-  }
-
-  return conf;
 }
 
 // save previous recorded state so that only record new entries in cases
