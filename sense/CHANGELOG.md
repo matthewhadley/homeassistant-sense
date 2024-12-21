@@ -1,3 +1,9 @@
+## [0.19.0] - 2024-12-16
+
+### Fixed
+
+- Respect data timeout config value
+
 ## [0.18.0] - 2024-12-16
 
 ### Added
