@@ -16,7 +16,7 @@ configuration:
     name: Debug
     description: >-
       Debug Logging
-  timeout:
+  sense_timeout:
     name: Timeout
     description: >-
       (debug) timeout in seconds for recieving any data from Sense servers. Will restart connection if exceeded in attempt to refresh data
