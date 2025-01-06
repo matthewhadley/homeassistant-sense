@@ -8,15 +8,16 @@ const CONFIG_FILE = process.env.SENSE_CONFIG_FILE || "/data/sense.conf";
 const SENSE_VERSION = process.env.SENSE_VERSION || 'dev';
 const SENSE_EMAIL = process.env.SENSE_EMAIL;
 const SENSE_PASSWORD = process.env.SENSE_PASSWORD;
-const SENSE_INTERVAL = parseInt(process.env.SENSE_INTERVAL);
+const SENSE_INTERVAL = parseInt(process.env.SENSE_INTERVAL) * 1000;
 const SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
 const DEBUG = process.env.SENSE_DEBUG === "true";
 const DEBUG_DISABLE_HA = process.env.SENSE_DISABLE_HA === "true"
 
 const SENSE_API_URI = "https://api.sense.com/apiservice/api/v1";
 const SENSE_WS_URI = "wss://clientrt.sense.com/monitors";
-const SENSE_TIMEOUT = ((parseInt(process.env.SENSE_TIMEOUT) || 120) * 1000);
-const SENSE_AUTH_RETRY_TIMEOUT = 60;
+const SENSE_TIMEOUT = ((parseInt(process.env.SENSE_TIMEOUT) || 60) * 1000);
+const SENSE_AUTH_TIMEOUT_RETRY = (60 * 1000);
+const SENSE_AUTH_TIMEOUT = (20 * 1000);
 
 const logger = function (level, ...messages) {
   let timestamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
@@ -53,6 +54,9 @@ logger.debug = function (...messages) {
 
 logger.info(`Sense ${SENSE_VERSION}`);
 
+logger.debug(`Sense Data Interval set to ${SENSE_INTERVAL / 1000} seconds`);
+logger.debug(`Sense Data Timeout set to ${SENSE_TIMEOUT / 1000} seconds`);
+
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -82,6 +86,7 @@ async function auth(reauth) {
       params.append("refresh_token", conf.refresh_token);
 
       const response = await fetch(`${SENSE_API_URI}/renew`, {
+        signal: AbortSignal.timeout(SENSE_AUTH_TIMEOUT),
         method: "POST",
         body: params,
       });
@@ -101,6 +106,7 @@ async function auth(reauth) {
       params.append("password", SENSE_PASSWORD);
 
       const response = await fetch(`${SENSE_API_URI}/authenticate`, {
+        signal: AbortSignal.timeout(SENSE_AUTH_TIMEOUT),
         method: "POST",
         body: params,
       });
@@ -120,9 +126,13 @@ async function auth(reauth) {
     }
     return conf;
   } catch (error) {
-    logger.error(error);
-    logger.warn(`Attempting to re-auth in ${SENSE_AUTH_RETRY_TIMEOUT} seconds...`);
-    await delay((SENSE_AUTH_RETRY_TIMEOUT * 1000));
+    if (error.name === "AbortError") {
+      logger.error('Request Timeout Exceeded');
+    } else {
+      logger.error(error);
+    }
+    logger.warn(`Attempting to re-auth in ${SENSE_AUTH_TIMEOUT_RETRY / 1000} seconds...`);
+    await delay((SENSE_AUTH_TIMEOUT_RETRY));
     return auth(reauth);
   }
 }
@@ -220,7 +230,7 @@ const connect = async function (conf) {
     // begin reording interval
     recordIntervalFn = setInterval(async function report() {
       recordEnergyUsage(sense_data);
-    }, (SENSE_INTERVAL * 1000));
+    }, (SENSE_INTERVAL));
 
     // begin ping/pong interval to ensure websocket connection stays alive
     ws.isAlive = true;

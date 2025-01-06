@@ -1,3 +1,10 @@
+## [0.21.0] - 2025-01-06
+
+### Added
+
+- 20s timeout for auth calls
+- debug logging of settings at startup
+
 ## [0.20.0] - 2024-12-27
 
 ### Fixed
